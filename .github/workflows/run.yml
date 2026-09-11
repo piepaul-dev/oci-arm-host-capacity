@@ -15,19 +15,24 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3' # ปรับให้ตรงกับ Test ของ Repo
+          php-version: '8.3'
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
+      # ขั้นตอนสร้างไฟล์คีย์ชั่วคราวขึ้นมาจาก Secret
+      - name: Create Private Key File
+        run: |
+          echo "${{ secrets.OCI_PRIVATE_KEY }}" > ./key.pem
+          chmod 600 ./key.pem
+
       - name: Run capacity checker
         env:
-          # เปลี่ยนชื่อตัวแปรฝั่งซ้ายให้ตรงกับที่สคริปต์ต้องการ
           OCI_REGION: ${{ secrets.OCI_REGION }}
           OCI_USER_ID: ${{ secrets.OCI_USER_ID }}
           OCI_TENANCY_ID: ${{ secrets.OCI_TENANCY_ID }}
           OCI_KEY_FINGERPRINT: ${{ secrets.OCI_KEY_FINGERPRINT }}
-          OCI_PRIVATE_KEY: ${{ secrets.OCI_PRIVATE_KEY }}
+          OCI_PRIVATE_KEY_FILENAME: ./key.pem
           OCI_AVAILABILITY_DOMAIN: ${{ secrets.OCI_AVAILABILITY_DOMAIN }}
           OCI_COMPARTMENT_ID: ${{ secrets.OCI_COMPARTMENT_ID }}
           OCI_SUBNET_ID: ${{ secrets.OCI_SUBNET_ID }}
